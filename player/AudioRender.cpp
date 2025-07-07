@@ -4,6 +4,25 @@
 
 #include "include/AudioRender.h"
 
+#include <QMediaDevices>
+
+static void initAudioDevice(PlayerContext *player_ctx) {
+    if (player_ctx->audio_stream_idx == -1) return;
+    QAudioFormat format;
+    format.setSampleRate(player_ctx->a_codec_ctx->sample_rate);
+    format.setChannelCount(player_ctx->a_codec_ctx->ch_layout.nb_channels);
+    format.setSampleFormat(QAudioFormat::Int16);
+
+    QAudioDevice device = QMediaDevices::defaultAudioOutput();
+    if (!device.isFormatSupported(format)) {
+        format = device.preferredFormat();
+    }
+
+    player_ctx->audio_sink = new QAudioSink(device, format);
+    player_ctx->audio_sink->setVolume(player_ctx->volume);
+    player_ctx->audio_device = player_ctx->audio_sink->start();
+}
+
 AudioRender::AudioRender(PlayerContext *ctx) : player_ctx(ctx) {
     for (int i = 0; i < FILTER_NUMBER; i++) {
         audio_filters[i] = new AudioFilter(ctx);
@@ -34,7 +53,9 @@ bool AudioRender::readFrame(AVFrame *frame, int sample_stride) {
         memset(frame->data[0], 0, frame->nb_samples * sample_stride);
         return true;
     }
-    return player_ctx->audio_buffer->readFrame(frame, sample_stride);
+    bool ret = player_ctx->audio_buffer->readFrame(frame, sample_stride);
+    if (frame->sample_rate == 0) frame->sample_rate = player_ctx->a_codec_ctx->sample_rate;
+    return ret;
 }
 
 void AudioRender::run() {
@@ -71,6 +92,14 @@ void AudioRender::run() {
 
         while (player_ctx->pause && player_ctx->quit == 0) {
             QThread::msleep(10);
+        }
+
+        while (player_ctx->audio_sink == nullptr && player_ctx->audio_buffer->size() == 0) {
+            QThread::msleep(10);
+        }
+
+        if (player_ctx->audio_sink == nullptr) {
+            initAudioDevice(player_ctx);  // QAudioSink 必须在有 event loop 的线程里创建
         }
 
         int free_bytes = player_ctx->audio_sink->bytesFree();

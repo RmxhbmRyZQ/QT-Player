@@ -212,7 +212,7 @@ void PlayerWindow::on_btnFullscreen_clicked() {
 }
 
 void PlayerWindow::on_btnOpen_clicked() {
-    QString file = QFileDialog::getOpenFileName(this, "选择文件", QDir::homePath(), "视频文件 (*.mp4 *.avi *.flv);;所有文件 (*.*)");
+    QString file = QFileDialog::getOpenFileName(this, "选择文件", QDir::homePath(), "视频文件 (*.mp4 *.avi *.flv *.mp3);;所有文件 (*.*)");
     if (!file.isNull()) {
         ui->sliderProgress->setValue(0);
         player->reset();
@@ -225,6 +225,8 @@ void PlayerWindow::on_btnOpen_clicked() {
                 thumbnailWorker->init(file.toUtf8().data());
             }
             ui->statusbar->showMessage("播放成功...", STATUS_BAR_TIME);
+            // 文件名设置到窗口标题上
+            setWindowTitle("播放器 - " + QFileInfo(file).fileName());
         }
     }
 }

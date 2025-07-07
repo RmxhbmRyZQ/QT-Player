@@ -4,6 +4,7 @@
 
 #include "include/AudioDecoder.h"
 
+#include <QMediaDevices>
 #include <QThread>
 
 static int open_swr(PlayerContext *state) {
@@ -155,14 +156,12 @@ void AudioDecoder::audioDecode() {
 
                 const int data_size = nb_samples * frame->ch_layout.nb_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
                 player_ctx->audio_buffer->writeRaw(player_ctx->temp_buf, data_size);
-                // arb_write(player_ctx->af_buf, player_ctx->temp_buf, data_size);
             } else {
                 const int data_size = av_samples_get_buffer_size(nullptr,
                     frame->ch_layout.nb_channels,
                     frame->nb_samples,
                     AV_SAMPLE_FMT_S16,
                     1);
-                // arb_write(state->af_buf, frame->data[0], data_size);
                 player_ctx->audio_buffer->writeRaw(frame->data[0], data_size);
             }
 

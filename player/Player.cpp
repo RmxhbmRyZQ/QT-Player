@@ -103,22 +103,22 @@ static int open_video(PlayerContext *state, VideoDecoder *decoder, VideoRender *
     return 0;
 }
 
-static void initAudioDevice(PlayerContext *player_ctx) {
-    if (player_ctx->audio_stream_idx == -1) return;
-    QAudioFormat format;
-    format.setSampleRate(player_ctx->a_codec_ctx->sample_rate);
-    format.setChannelCount(player_ctx->a_codec_ctx->ch_layout.nb_channels);
-    format.setSampleFormat(QAudioFormat::Int16);
-
-    QAudioDevice device = QMediaDevices::defaultAudioOutput();
-    if (!device.isFormatSupported(format)) {
-        format = device.preferredFormat();
-    }
-
-    player_ctx->audio_sink = new QAudioSink(device, format);
-    player_ctx->audio_sink->setVolume(player_ctx->volume);
-    player_ctx->audio_device = player_ctx->audio_sink->start();
-}
+// static void initAudioDevice(PlayerContext *player_ctx) {
+//     if (player_ctx->audio_stream_idx == -1) return;
+//     QAudioFormat format;
+//     format.setSampleRate(player_ctx->a_codec_ctx->sample_rate);
+//     format.setChannelCount(player_ctx->a_codec_ctx->ch_layout.nb_channels);
+//     format.setSampleFormat(QAudioFormat::Int16);
+//
+//     QAudioDevice device = QMediaDevices::defaultAudioOutput();
+//     if (!device.isFormatSupported(format)) {
+//         format = device.preferredFormat();
+//     }
+//
+//     player_ctx->audio_sink = new QAudioSink(device, format);
+//     player_ctx->audio_sink->setVolume(player_ctx->volume);
+//     player_ctx->audio_device = player_ctx->audio_sink->start();
+// }
 
 static int open_audio(PlayerContext *state, AudioDecoder *decoder, AudioRender *render) {
     if (state->audio_stream_idx == -1) {
@@ -130,7 +130,7 @@ static int open_audio(PlayerContext *state, AudioDecoder *decoder, AudioRender *
         return -1;
     }
 
-    initAudioDevice(state);
+    // initAudioDevice(state);
 
     decoder->decode();
     render->start();
