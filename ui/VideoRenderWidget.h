@@ -45,5 +45,7 @@ private:
     int videoW = 0, videoH = 0;
     uint8_t *yPlane = nullptr, *uPlane = nullptr, *vPlane = nullptr;
     AVFrame *frame = nullptr;
+
+    std::mutex mtx;
 };
 

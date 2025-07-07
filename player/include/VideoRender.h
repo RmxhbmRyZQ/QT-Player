@@ -24,8 +24,12 @@ signals:
     void finished();
 
 private:
+    int64_t calculateWaitTime(int64_t pts);
+
+private:
     PlayerContext *player_ctx = nullptr;
     int64_t last_pts = 0;
+    int64_t speed_offset = 0;
 };
 
 

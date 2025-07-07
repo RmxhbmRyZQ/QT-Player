@@ -133,7 +133,7 @@ void ThumbnailWorker::onRequestPreview(int mouseX, int status, int64_t value) {
         avcodec_flush_buffers(pCodecCtx);
     }
 
-    if (readFrame() < 0) {
+    if (readFrame(value) < 0) {
         goto __END;
     }
 
@@ -154,16 +154,21 @@ void ThumbnailWorker::release() {
     if (frame) av_frame_free(&frame);
     if (pCodecCtx) avcodec_free_context(&pCodecCtx);
     if (pFormatCtx) avformat_close_input(&pFormatCtx);
+    if (swsCtx) {
+        sws_freeContext(swsCtx);
+        swsCtx = nullptr;
+    }
     if (frame) av_frame_free(&frame);
     if (read_frame) av_frame_free(&read_frame);
     if (rescaled_frame) av_frame_free(&rescaled_frame);
     if (packet) av_packet_free(&packet);
     lastPts = -1;
+    lastTime = -1000000;
     initialized = false;
     running = false;
 }
 
-int ThumbnailWorker::readFrame() {
+int ThumbnailWorker::readFrame(int64_t value) {
     int ret = 0;
     while(true) {
         ret = av_read_frame(pFormatCtx, packet);
@@ -177,11 +182,13 @@ int ThumbnailWorker::readFrame() {
         }
 
         // 当包的 pts 与上一个 pts 相同，说明没跳到下一个关键帧，播放之前的
-        if (packet->pts == lastPts) {
+        if ((packet->pts == lastPts && packet->pts >= 0) || (packet->pts < 0 && value - lastTime < 5000)) {
+        // if (packet->pts == lastPts && packet->pts >= 0) {
             av_packet_unref(packet);
             goto __END;
         }
         lastPts = packet->pts;
+        lastTime = value;
 
         ret = avcodec_send_packet(pCodecCtx, packet);
         av_packet_unref(packet);

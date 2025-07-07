@@ -102,6 +102,9 @@ public:
     int64_t base_time = 0;
     int64_t audio_offset = 0;
     int64_t video_offset = 0;
+    double frame_fps = 0.0;
+    double frame_duration = 0.0;
+    int64_t first_frame_pts = -1;
 };
 
 #endif //PLAYERCONTEXT_H

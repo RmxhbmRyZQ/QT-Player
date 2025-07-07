@@ -88,6 +88,8 @@ void VideoDecoder::videoDecode() {
                 continue;
             }
 
+            if (player_ctx->first_frame_pts == -1)
+                player_ctx->first_frame_pts = packet->pts;
             // 发送一个包到解码器
             ret = avcodec_send_packet(player_ctx->v_codec_ctx, packet);
             av_packet_unref(packet);

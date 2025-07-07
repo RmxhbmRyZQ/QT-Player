@@ -45,6 +45,7 @@ void PlayerContext::closeFile() {
 
     if (sws_ctx) {
         sws_freeContext(sws_ctx);
+        sws_ctx = nullptr;
     }
 
     if (temp_buf) {
@@ -179,13 +180,18 @@ void PlayerContext::resetValue() {
     base_time = 0;
     audio_offset = 0;
     video_offset = 0;
+    frame_fps = 0.0;
+    frame_duration = 0.0;
+    duration = 0.0;
+    first_frame_pts = -1;
+
     pause = 0;
     quit = 0;
 }
 
 void PlayerContext::waitJump(char *str) {
     if (jump) {
-        // printf("%The invoked thread is s\n", str);
+        // printf("The invoked thread is %s\n", str);
         jump_busy += 1;  // 增加等待的线程数
         while (jump && !quit) {  // 进入等待
             std::this_thread::sleep_for(std::chrono::milliseconds(5));

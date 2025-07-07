@@ -34,7 +34,7 @@ signals:
 
 private:
     void release();
-    int readFrame();
+    int readFrame(int64_t value);
     int scaleFrame();
 
 private:
@@ -46,7 +46,8 @@ private:
     AVFrame* read_frame = nullptr;
     AVPacket* packet = nullptr;
     AVFrame* rescaled_frame = nullptr;
-    int lastPts = -1;
+    int64_t lastPts = -1;
+    int64_t lastTime = -1000000;
 
     // 视频
     AVFormatContext* pFormatCtx = nullptr;

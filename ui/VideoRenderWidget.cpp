@@ -3,6 +3,8 @@
 //
 
 #include "VideoRenderWidget.h"
+
+#include <mutex>
 #include <QOpenGLWidget>
 #include <QOpenGLShader>
 #include <QDebug>
@@ -52,9 +54,13 @@ void VideoRenderWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void VideoRenderWidget::paintGL() {
+    std::unique_lock<std::mutex> lock(mtx);  // 防止与 setFrame 对帧的使用冲突导致报错
+
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (!yPlane) return;
+    if (!yPlane) {
+        return;
+    }
     // 计算绘制区域保持视频比例
     double widgetW = width() * devicePixelRatio();
     double widgetH = height() * devicePixelRatio();
@@ -103,21 +109,28 @@ void VideoRenderWidget::paintGL() {
     program.disableAttributeArray(0);
     program.disableAttributeArray(1);
     program.release();
+
 }
 
 void VideoRenderWidget::setFrame(AVFrame *frame) {
+    std::unique_lock<std::mutex> lock(mtx);
+
     if (this->frame) {
         av_frame_unref(this->frame);
     } else {
         this->frame = av_frame_alloc();
     }
+
     if (frame == nullptr) {
         av_frame_free(&this->frame);
         yPlane = nullptr;
         uPlane = nullptr;
         vPlane = nullptr;
+        videoW = 0;
+        videoH = 0;
         return;
     }
+
     av_frame_move_ref(this->frame, frame);
     yPlane = this->frame->data[0];
     uPlane = this->frame->data[1];

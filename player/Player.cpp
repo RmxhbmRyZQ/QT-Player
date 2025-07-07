@@ -92,11 +92,17 @@ static int open_video(PlayerContext *state, VideoDecoder *decoder, VideoRender *
         return 0;
     }
 
-    state->v_codec_ctx = open_codec(state->fmt_ctx->streams[state->video_stream_idx]);
+    AVStream *stream = state->fmt_ctx->streams[state->video_stream_idx];
+
+    state->v_codec_ctx = open_codec(stream);
     if (state->v_codec_ctx == nullptr) {
         return -1;
     }
 
+    AVRational avg_frame_rate = stream->avg_frame_rate;
+    state->frame_fps = avg_frame_rate.num && avg_frame_rate.den ? (double)avg_frame_rate.num / avg_frame_rate.den : 0.0;
+    state->frame_duration = 1000 / state->frame_fps;
+    state->video_offset = stream->start_time * av_q2d(stream->time_base) * 1000000;
     decoder->decode();
     render->start();
 
@@ -270,7 +276,9 @@ int Player::reset() {
     audio_decoder->stopDecode();
 
     video_render->wait();
+    video_render->quit();
     audio_render->wait();
+    audio_render->quit();
 
     player_ctx->video_render->setFrame(nullptr);  // 这个要置空，不然小概率闪退
     player_ctx->closeAudioDevice();

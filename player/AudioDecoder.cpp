@@ -133,6 +133,7 @@ void AudioDecoder::audioDecode() {
             if (!player_ctx->ready_to_jump) {
                 AVStream *stream = player_ctx->fmt_ctx->streams[player_ctx->audio_stream_idx];
                 player_ctx->audio_offset = ((double)frame->pts * av_q2d(stream->time_base) - (double)frame->nb_samples / frame->sample_rate) * 1000000;
+                player_ctx->video_offset = player_ctx->audio_offset;
                 player_ctx->ready_to_jump = 1;
             }
 

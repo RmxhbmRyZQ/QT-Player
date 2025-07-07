@@ -107,15 +107,15 @@ void PacketDemux::demuxPacket() {
                     }
             }
 
-            player_ctx->waitJump((char*)"Packet Demux");
         } else {
             // 流读完时的操作，保持你的原始逻辑
             player_ctx->audio_demux_end = true;
             player_ctx->video_demux_end = true;
-            while (player_ctx->audio_demux_end && player_ctx->video_demux_end && !player_ctx->quit) {
+            while (player_ctx->audio_demux_end && player_ctx->video_demux_end && !player_ctx->jump && !player_ctx->quit) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
+            player_ctx->waitJump((char*)"Packet Demux");
     }
 
     av_packet_free(&packet);
