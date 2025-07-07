@@ -47,6 +47,7 @@ public:
 
 private:
     void connectSignals();
+    void setStyle();
 
 protected:
     // void keyPressEvent(QKeyEvent *event) override;

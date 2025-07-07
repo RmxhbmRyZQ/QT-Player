@@ -57,6 +57,7 @@ PlayerWindow::PlayerWindow(QWidget *parent)
     qApp->installEventFilter(this);
 
     connectSignals();
+    setStyle();
 
     setWindowTitle("播放器");
     this->setWindowIcon(QIcon(":icon.svg"));
@@ -93,6 +94,86 @@ void PlayerWindow::connectSignals() {
     connect(ui->videoWidget, &VideoRenderWidget::clicked, this, &PlayerWindow::spacePressedHandler);
 
     connect(thumbnailPreviewThread, &QThread::finished, thumbnailPreviewThread, &QObject::deleteLater);
+}
+
+void PlayerWindow::setStyle() {
+    this->setStyleSheet(R"(
+    QMainWindow, QWidget {
+        background-color: #181818;
+        color: #e0e0e0;
+    }
+    QPushButton {
+        background-color: #222;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+    QPushButton:hover {
+        background-color: #444;
+    }
+    QPushButton:pressed {
+        background-color: #111;
+    }
+    QSlider::groove:horizontal {
+        background: #333;
+        height: 6px;
+        border-radius: 3px;
+    }
+    QSlider::handle:horizontal {
+        background: #e0e0e0;
+        border: 1px solid #666;
+        width: 16px;
+        margin: -5px 0;
+        border-radius: 8px;
+    }
+    QSlider::sub-page:horizontal {
+        background: #3a82f6;
+        border-radius: 3px;
+    }
+    QSlider::add-page:horizontal {
+        background: #444;
+        border-radius: 3px;
+    }
+    QLabel {
+        color: #e0e0e0;
+        background: transparent;
+    }
+    QComboBox {
+        background-color: #222;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 2px 10px 2px 6px;
+    }
+    QComboBox QAbstractItemView {
+        background: #181818;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        selection-background-color: #333;
+        selection-color: #3a82f6;
+    }
+    QMenuBar {
+        background-color: #202020;
+        color: #e0e0e0;
+    }
+    QMenuBar::item:selected {
+        background: #333;
+    }
+    QMenu {
+        background-color: #181818;
+        color: #e0e0e0;
+        border: 1px solid #333;
+    }
+    QMenu::item:selected {
+        background-color: #333;
+        color: #3a82f6;
+    }
+    QStatusBar {
+        background: #202020;
+        color: #c0c0c0;
+    }
+    )");
 }
 
 bool PlayerWindow::eventFilter(QObject *obj, QEvent *event) {
