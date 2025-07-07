@@ -10,7 +10,8 @@ static int64_t calculate_wait_time(PlayerContext *state, int64_t pts, int64_t la
         // 当音频比视频快时，直接快速播放帧，即等待时间为 0，从而音视频同步
         state->video_offset = (int64_t)((double)(pts) * av_q2d(state->fmt_ctx->streams[state->video_stream_idx]->time_base) * 1000000);
 
-        int64_t wait_time = (state->video_offset - state->audio_offset) / 1000;
+        // 可能不是非常精准，但播放的效果也足够了
+        int64_t wait_time = (state->video_offset - state->audio_offset) / (1000 * state->speeds[state->speed_idx]);
         if (wait_time < 0) {
             wait_time = 0;
         }

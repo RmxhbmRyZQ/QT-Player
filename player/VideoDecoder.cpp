@@ -143,7 +143,7 @@ void VideoDecoder::videoDecode() {
                     }
                 }
 
-                // 在 av_frame_queue_push 中会使用 move_ref，导致 data 要重新分配
+                // 在 v_frame_queue->push 中会使用 move_ref，导致 data 要重新分配
                 if (frame_yuv->data[0] == nullptr) {
                     ret = av_frame_get_buffer(frame_yuv, 32);
                     if (ret < 0) {

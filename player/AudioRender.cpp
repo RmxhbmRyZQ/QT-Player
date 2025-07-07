@@ -94,9 +94,11 @@ void AudioRender::run() {
             QThread::msleep(10);
         }
 
-        while (player_ctx->audio_sink == nullptr && player_ctx->audio_buffer->size() == 0) {
+        while (player_ctx->audio_sink == nullptr && player_ctx->audio_buffer->size() == 0 && player_ctx->quit == 0) {
             QThread::msleep(10);
         }
+
+        if (player_ctx->quit == 1) break;
 
         if (player_ctx->audio_sink == nullptr) {
             initAudioDevice(player_ctx);  // QAudioSink 必须在有 event loop 的线程里创建
